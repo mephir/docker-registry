@@ -2,13 +2,37 @@ version: '3'
 
 services:
   registry:
+    container_name: registry-mephir-io
     image: registry:2
+    restart: always
     environment:
       REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/passwords
+      REGISTRY_HTTP_ADDR: 0.0.0.0:5000
     volumes:
       - registry:/data
+      - ./auth:/auth
     labels:
-      - traefik.http.routers.registry.rule=Host(`registry.mephir.io`)
+      - traefik.http.routers.http-registry-mephir-io.rule=Host(`registry.mephir.io`)
+      - traefik.http.routers.http-registry-mephir-io.entrypoints=http
+      - traefik.http.routers.http-registry-mephir-io.middlewares=registry-mephir-io-to-https
+
+      - traefik.http.routers.https-registry-mephir-io.rule=Host(`registry.mephir.io`)
+      - traefik.http.routers.https-registry-mephir-io.entrypoints=https
+      - traefik.http.routers.https-registry-mephir-io.tls=true
+      - traefik.http.routers.https-registry-mephir-io.tls.certresolver=cloudflare
+
+      - traefik.http.middlewares.registry-mephir-io-to-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.registry-mephir-io-to-https.redirectscheme.permanent=true
+      - traefik.enable=true
+    networks:
+      - traefik
 
 volumes:
   registry:
+
+networks:
+  traefik:
+    external: true
