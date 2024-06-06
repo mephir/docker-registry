@@ -1,1 +1,2 @@
-.env.local
+registry/.env.override
+ui/.env.override

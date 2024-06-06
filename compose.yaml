@@ -3,18 +3,11 @@ services:
     container_name: registry-ui-mephir-io
     image: joxit/docker-registry-ui:main
     restart: always
-    environment:
-      - SINGLE_REGISTRY=true
-      - REGISTRY_TITLE=Registry UI
-      - DELETE_IMAGES=true
-      - SHOW_CONTENT_DIGEST=true
-      - NGINX_PROXY_PASS_URL=http://registry:5000
-      - SHOW_CATALOG_NB_TAGS=true
-      - CATALOG_MIN_BRANCHES=1
-      - CATALOG_MAX_BRANCHES=1
-      - TAGLIST_PAGE_SIZE=100
-      - REGISTRY_SECURED=true
-      - CATALOG_ELEMENTS_LIMIT=1000
+    env_file:
+      - path: "./ui/.env"
+        required: true
+      - path: "./ui/.env.override"
+        required: false
     links:
       - "registry:registry"
     labels:
@@ -34,9 +27,9 @@ services:
     image: registry:2
     restart: always
     env_file:
-      - path: "./.env"
+      - path: "./registry/.env"
         required: true
-      - path: "./.env.override"
+      - path: "./registry/.env.override"
         required: false
     volumes:
       - registry:/data
