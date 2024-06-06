@@ -10,17 +10,10 @@ services:
         required: false
     links:
       - "registry:registry"
-    labels:
-      - "traefik.http.routers.https-registry-ui-mephir-io.rule=Host(`registry.mephir.io`) && PathPrefix(`/ui`)"
-      - traefik.http.routers.https-registry-ui-mephir-io.entrypoints=https
-      - traefik.http.routers.https-registry-ui-mephir-io.tls=true
-      - traefik.http.routers.https-registry-ui-mephir-io.tls.certresolver=cloudflare
-      - traefik.http.routers.https-registry-ui-mephir-io.middlewares=stripprefix-ui
-      - "traefik.http.middlewares.stripprefix-ui.stripprefix.prefixes=/ui"
-
-      - traefik.enable=true
     networks:
       - traefik
+    depends_on:
+      - registry
 
   registry:
     container_name: registry-mephir-io
@@ -34,19 +27,6 @@ services:
     volumes:
       - registry:/data
       - ./auth:/auth
-    labels:
-      - traefik.http.routers.http-registry-mephir-io.rule=Host(`registry.mephir.io`)
-      - traefik.http.routers.http-registry-mephir-io.entrypoints=http
-      - traefik.http.routers.http-registry-mephir-io.middlewares=registry-mephir-io-to-https
-
-      - traefik.http.routers.https-registry-mephir-io.rule=Host(`registry.mephir.io`)
-      - traefik.http.routers.https-registry-mephir-io.entrypoints=https
-      - traefik.http.routers.https-registry-mephir-io.tls=true
-      - traefik.http.routers.https-registry-mephir-io.tls.certresolver=cloudflare
-
-      - traefik.http.middlewares.registry-mephir-io-to-https.redirectscheme.scheme=https
-      - traefik.http.middlewares.registry-mephir-io-to-https.redirectscheme.permanent=true
-      - traefik.enable=true
     networks:
       - traefik
 
