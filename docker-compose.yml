@@ -23,7 +23,6 @@ services:
       - traefik.http.routers.https-registry-ui-mephir-io.tls=true
       - traefik.http.routers.https-registry-ui-mephir-io.tls.certresolver=cloudflare
       - traefik.http.routers.https-registry-ui-mephir-io.middlewares=stripprefix-ui
-
       - "traefik.http.middlewares.stripprefix-ui.stripprefix.prefixes=/ui"
 
       - traefik.enable=true
