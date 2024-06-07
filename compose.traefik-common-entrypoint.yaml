@@ -1,0 +1,55 @@
+services:
+  traefik:
+    image: traefik:v2.11.3
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.traefik.address=:8080"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.network=traefik"
+    ports:
+      - "10080:80"
+      - "18080:8080"
+    volumes:
+       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik
+
+  registry-ui:
+    container_name: registry-ui
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry-ui.entrypoints=http"
+      - "traefik.http.routers.registry-ui.rule=PathPrefix(`/ui`)"
+      - "traefik.http.routers.registry-ui.middlewares=stripprefix-ui"
+      - "traefik.http.middlewares.stripprefix-ui.stripprefix.prefixes=/ui"
+      - "traefik.http.middlewares.stripprefix-ui.stripprefix.forceSlash=false"
+    depends_on:
+      - registry
+    networks:
+      - traefik
+    extends:
+      file: compose.common.yaml
+      service: registry-ui
+
+  registry:
+    container_name: registry
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.entrypoints=http"
+      - "traefik.http.routers.registry.rule=PathPrefix(`/`)"
+    networks:
+      - traefik
+    extends:
+      file: compose.common.yaml
+      service: registry
+
+networks:
+  traefik:
+    # internal: true
+
+volumes:
+  registry:

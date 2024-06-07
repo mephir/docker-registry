@@ -1,0 +1,21 @@
+services:
+  registry:
+    image: registry:2
+    restart: always
+    env_file:
+      - path: "./registry/.env"
+        required: true
+      - path: "./registry/.env.override"
+        required: false
+    volumes:
+      - registry:/data
+      - ./auth:/auth
+
+  registry-ui:
+    image: joxit/docker-registry-ui:main
+    restart: always
+    env_file:
+      - path: "./ui/.env"
+        required: true
+      - path: "./ui/.env.override"
+        required: false
